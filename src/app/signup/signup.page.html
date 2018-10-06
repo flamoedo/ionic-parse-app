@@ -1,0 +1,30 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Signup</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+
+<ion-content padding>
+  <form [formGroup]="signupForm">
+    <ion-list>
+      <ion-item>
+        <ion-label position="floating">Username</ion-label>
+        <ion-input type="text" formControlName="username"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label position="floating">Email</ion-label>
+        <ion-input type="email" formControlName="email"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label position="floating">Password</ion-label>
+        <ion-input type="password" formControlName="password"></ion-input>
+      </ion-item>
+      <ion-button shape="round" color="secondary" expand="block" 
+      [disabled]="!signupForm.valid" (click)="signup()">Create Account</ion-button>
+      <ion-button padding shape="round" color="secondary" expand="block" 
+      [routerLink]="['/login']">Login</ion-button>
+    </ion-list>
+
+  </form>
+</ion-content>

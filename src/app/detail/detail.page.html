@@ -1,0 +1,20 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button color="tertiary"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Info Details</ion-title>
+    <ion-buttons slot="end">
+      <ion-button color="tertiary" [routerLink]="['/edit',id]"><ion-icon name="create"></ion-icon></ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-card>
+    <ion-card-content>
+      <ion-card-title>{{playerName}}</ion-card-title>
+      <p>{{score}}</p>
+    </ion-card-content>
+  </ion-card>
+</ion-content>

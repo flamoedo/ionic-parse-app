@@ -1,0 +1,23 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button color="tertiary"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Edit</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content padding>
+  <form [formGroup]="editForm">
+    <ion-item>
+      <ion-label position="floating">Player Name</ion-label>
+      <ion-input type="text" formControlName="player_name"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label position="floating">Score</ion-label>
+      <ion-input type="numer" formControlName="player_score"></ion-input>
+    </ion-item>
+    <ion-button shape="round" color="secondary" expand="block" [disabled]="!editForm.valid"
+     (click)="updateScore()">Update</ion-button>
+  </form>
+</ion-content>

@@ -1,0 +1,7 @@
+{
+  "name": "ionic parse crud",
+  "integrations": {
+    "cordova": {}
+  },
+  "type": "angular"
+}

@@ -1,0 +1,34 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>
+      Info List
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-list #gameList>
+    <ion-refresher (ionRefresh)="refresh($event)">
+      <ion-refresher-content pullingIcon="arrow-dropdown" pullingText="Pull to refresh" refreshingSpinner="circles"
+        refreshingText="Refreshing...">
+      </ion-refresher-content>
+    </ion-refresher>
+
+    <ion-item-sliding *ngFor="let score of scores async" #slidingItem>
+      <ion-item detail lines="full" [routerLink]="['/detail',score.id]">
+        <ion-icon name="desktop" slot="start"></ion-icon>
+        {{score.get("playerName")}}
+      </ion-item>
+      <ion-item-options side="end">
+        <ion-item-option color="secondary" (click)="edit(score.id, slidingItem)">EDIT</ion-item-option>
+        <ion-item-option color="secondary" (click)="delete(score, i)">DELETE</ion-item-option>
+      </ion-item-options>
+    </ion-item-sliding>
+  </ion-list>
+</ion-content>
+
+<ion-fab vertical="bottom" horizontal="end" slot="fixed" routerLink="/create">
+  <ion-fab-button>
+    <ion-icon name="add"></ion-icon>
+  </ion-fab-button>
+</ion-fab>

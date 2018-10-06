@@ -1,0 +1,25 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button color="tertiary"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Create Info</ion-title>
+  </ion-toolbar>
+</ion-header>
+  <ion-img [src]="imgSrc" style="display:block;width:50%;height:auto;margin-left:auto;margin-right:auto;" #imgPreview>
+</ion-img>
+<ion-content padding>
+  <form [formGroup]="infoForm">
+    <input type="file" id="avatar" (change)="onFileChange($event)" #fileInput>
+    <ion-item>
+      <ion-label position="floating">Player Name</ion-label>
+      <ion-input type="text" formControlName="player_name"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label position="floating">Score</ion-label>
+      <ion-input type="number" formControlName="player_score"></ion-input>
+    </ion-item>
+    <ion-button shape="round" color="secondary" expand="block" [disabled]="!infoForm.valid" (click)="saveInfo()">Save</ion-button>
+    <ion-button shape="round" color="secondary" expand="block" (click)="takePicture()">Take Picture</ion-button>
+  </form>
+</ion-content>
