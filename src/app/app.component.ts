@@ -7,7 +7,7 @@ import {AuthenticationService} from './authentication.service'
 import { ActivatedRoute, Router } from '@angular/router';
 
 
-var Parse = require('parse');
+const Parse = require('parse');
 
 @Component({
   selector: 'app-root',
@@ -28,17 +28,17 @@ export class AppComponent {
 
   initializeApp() {
     this.platform.ready().then(() => {
-     
+
       this.statusBar.styleDefault();
       this.splashScreen.hide();
 
-      //check if the user is logged in
-      // if (this.auth.getAuthenticationState() != <any>'true'){
-      //   this.router.navigate(['/login']);
-      // }
+      // check if the user is logged in
+      if (this.auth.getAuthenticationState() != <any>'true'){
+        this.router.navigate(['/login']);
+      }
 
     });
-    Parse.initialize("myAppId", "myMasterKey123456");
+    Parse.initialize('myAppId', 'myMasterKey123456');
     Parse.serverURL = 'https://rocky-fortress-14504.herokuapp.com/parse';
 
   }
