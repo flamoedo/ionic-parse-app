@@ -1,6 +1,7 @@
-import { Component} from '@angular/core';
+import { Component } from '@angular/core';
 import { AlertController } from '@ionic/angular';
 import { Router } from '@angular/router';
+import { isUndefined } from 'util';
 
 var Parse = require('parse');
 
@@ -24,7 +25,7 @@ export class HomePage {
     this.initial_query();
     // this.list.closeSlidingItems();
 
-  } 
+  }
 
   refresh(event) {
     setTimeout(() => {
@@ -40,6 +41,7 @@ export class HomePage {
         this.scores = []
         for (let i = 0; i < results.length; i++) {
           let object = results[i];
+          isUndefined          
           this.scores.push(object);
         }
       }
@@ -63,10 +65,10 @@ export class HomePage {
           handler: () => {
             this.query.get(score.id)
               .then((myObject) => {
-                myObject.destroy();    
+                myObject.destroy();
                 let i = this.scores.indexOf(score);
-                
-                this.scores.splice(i,1);
+
+                this.scores.splice(i, 1);
 
 
               }, (error) => {

@@ -16,7 +16,10 @@
 
     <ion-item-sliding *ngFor="let score of scores async" #slidingItem>
       <ion-item detail lines="full" [routerLink]="['/detail',score.id]">
-        <ion-icon name="desktop" slot="start"></ion-icon>
+        <ion-avatar slot="start">
+                    
+          <img [src]="(score.get('Image') != undefined ? score.get('Image').url() : score.get('avatar'))">
+        </ion-avatar>
         {{score.get("playerName")}}
       </ion-item>
       <ion-item-options side="end">

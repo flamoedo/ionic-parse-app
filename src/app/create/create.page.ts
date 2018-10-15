@@ -3,6 +3,8 @@ import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 // import { parseSelectorToR3Selector } from '@angular/compiler/src/core';
 import { Camera, CameraOptions } from '@ionic-native/camera/ngx';
+import { isUndefined } from 'util';
+import { Platform } from '@ionic/angular';
 
 const Parse = require('parse');
 
@@ -26,18 +28,24 @@ export class CreatePage implements OnInit {
 
   options: CameraOptions = {
     quality: 100,
-    destinationType: this.camera.DestinationType.FILE_URI,
+    destinationType: this.camera.DestinationType.DATA_URL,
     encodingType: this.camera.EncodingType.JPEG,
-    mediaType: this.camera.MediaType.PICTURE
+    mediaType: this.camera.MediaType.PICTURE,
+    correctOrientation: true
   };
 
   constructor(public router: Router,
-    private formBuilder: FormBuilder, private camera: Camera) {
+    private formBuilder: FormBuilder, private camera: Camera, private platform: Platform) {
     this.infoForm = this.formBuilder.group({
       'player_name': [null, Validators.required],
       'player_score': [null, Validators.required]
     });
-    this.imgSrc = '/assets/icons/icon-72x72.png';
+
+    var avatarNum = Math.floor(Math.random() * (9 - 1)) + 1;
+
+    // this.imgSrc = '/assets/icons/icon-72x72.png';
+
+    this.imgSrc = '/assets/icons/avatar_' + avatarNum + '.png'
 
   }
 
@@ -67,41 +75,68 @@ export class CreatePage implements OnInit {
 
     let parseFile;
 
-    parseFile = new Parse.File('photo.jpg', { base64: this.imgData });
-
     const GameScore = Parse.Object.extend('GameScore');
     const gameScore = new GameScore();
 
     gameScore.set('score', this.infoForm.value.player_score);
     gameScore.set('playerName', this.infoForm.value.player_name);
 
-    parseFile.save().then(function () {
-      // The file has been saved to Parse.
-      console.log('arquivo salvo');
+    var objCreatePage = this;
 
-      // const parseImage = new Parse.Object('Image');
-      // parseImage.set('Image', parseFile);
-      // parseImage.save();
 
-      gameScore.set('Image', parseFile);
+    var postACL = new Parse.ACL(Parse.User.current());
+    postACL.setPublicReadAccess(true);
+    gameScore.setACL(postACL);
 
+
+
+    if (!isUndefined(this.imgData)) {
+
+      
+        parseFile = new Parse.File('photo.jpg', { base64: this.imgData });
+
+
+      parseFile.save().then(function () {
+        // The file has been saved to Parse.
+        console.log('arquivo salvo');
+
+        // const parseImage = new Parse.Object('Image');
+        // parseImage.set('Image', parseFile);
+        // parseImage.save();
+
+        gameScore.set('Image', parseFile);
+
+        gameScore.save()
+          .then(() => {
+            // Execute any logic that should take place after the object is saved.
+            objCreatePage.router.navigate(['/detail/' + gameScore.id]);
+
+          }, (error) => {
+            // Execute any logic that should take place if the save fails.
+            // error is a Parse.Error with an error code and message.
+            alert('Failed to create new object, with error code: ' + error.message);
+          });
+
+      },
+
+        function (error) {
+          console.log(error.message);
+          // The file either could not be read, or could not be saved to Parse.
+        });
+
+    } else {
+      gameScore.set('avatar', this.imgSrc);
       gameScore.save()
-      .then(() => {
-        // Execute any logic that should take place after the object is saved.
-        this.router.navigate(['/detail/' + gameScore.id]);
+        .then(() => {
+          // Execute any logic that should take place after the object is saved.
+          this.router.navigate(['/detail/' + gameScore.id]);
 
-      }, (error) => {
-        // Execute any logic that should take place if the save fails.
-        // error is a Parse.Error with an error code and message.
-        alert('Failed to create new object, with error code: ' + error.message);
-      });
-
-    },
-
-      function (error) {
-        console.log(error.message);
-        // The file either could not be read, or could not be saved to Parse.
-      });
+        }, (error) => {
+          // Execute any logic that should take place if the save fails.
+          // error is a Parse.Error with an error code and message.
+          alert('Failed to create new object, with error code: ' + error.message);
+        });
+    }
 
   }
 
