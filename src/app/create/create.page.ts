@@ -62,7 +62,7 @@ export class CreatePage implements OnInit {
     private formBuilder: FormBuilder, private camera: Camera, private platform: Platform,
     private imagePicker: ImagePicker
     // private transfer: FileTransfer, private file: File
-    ) {
+  ) {
     this.infoForm = this.formBuilder.group({
       'player_name': [null, Validators.required],
       'player_score': [null, Validators.required]
@@ -121,7 +121,15 @@ export class CreatePage implements OnInit {
 
       // parseFile = new Parse.File('photo.jpg', { base64: this.imgData });
 
-      parseFile = new Parse.File('photo.jpg', this.imgSrc);
+      var reader = new FileReader();
+      reader.readAsArrayBuffer(this.imgSrc);
+      reader.onload = function (evt) {
+        console.log(evt.target);
+        parseFile = new Parse.File('photo.jpg', evt.target);
+      }
+
+
+      // parseFile = new Parse.File('photo.jpg', this.imgSrc);
 
 
       parseFile.save().then(function () {
@@ -200,9 +208,9 @@ export class CreatePage implements OnInit {
         // console.log('Image URI: ' + results[i]);            
 
         // const base64Image = 'data:image/jpeg;base64,' +  results[i];
-        this.imgSrc = this.webview.convertFileSrc( results[i]);
+        this.imgSrc = this.webview.convertFileSrc(results[i]);
 
-        
+
       }
     }, (err) => { });
 
