@@ -5,6 +5,10 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Camera, CameraOptions } from '@ionic-native/camera/ngx';
 import { isUndefined } from 'util';
 import { Platform } from '@ionic/angular';
+import { ImagePicker } from '@ionic-native/image-picker/ngx';
+import { WebView } from '@ionic-native/ionic-webview/ngx';
+// import { FileTransfer, FileUploadOptions, FileTransferObject } from '@ionic-native/file-transfer/ngx';
+// import { File } from '@ionic-native/file/ngx';
 
 const Parse = require('parse');
 
@@ -25,6 +29,26 @@ export class CreatePage implements OnInit {
   imgSrc;
   imgParseFile;
   imgData;
+  webview = new WebView();
+
+
+  // upload() {
+  //   let options: FileUploadOptions = {
+  //      fileKey: 'file',
+  //      fileName: 'name.jpg',
+  //      headers: {}
+  //   };
+
+  //   const fileTransfer: FileTransferObject = this.transfer.create();
+
+  //   fileTransfer.upload('<file path>', '<api endpoint>', options)
+  //    .then((data) => {
+  //      // success
+  //    }, (err) => {
+  //      // error
+  //    })
+  // }
+
 
   options: CameraOptions = {
     quality: 100,
@@ -35,7 +59,10 @@ export class CreatePage implements OnInit {
   };
 
   constructor(public router: Router,
-    private formBuilder: FormBuilder, private camera: Camera, private platform: Platform) {
+    private formBuilder: FormBuilder, private camera: Camera, private platform: Platform,
+    private imagePicker: ImagePicker
+    // private transfer: FileTransfer, private file: File
+    ) {
     this.infoForm = this.formBuilder.group({
       'player_name': [null, Validators.required],
       'player_score': [null, Validators.required]
@@ -90,10 +117,11 @@ export class CreatePage implements OnInit {
 
 
 
-    if (!isUndefined(this.imgData)) {
+    if (!isUndefined(this.imgSrc)) {
 
-      
-        parseFile = new Parse.File('photo.jpg', { base64: this.imgData });
+      // parseFile = new Parse.File('photo.jpg', { base64: this.imgData });
+
+      parseFile = new Parse.File('photo.jpg', this.imgSrc);
 
 
       parseFile.save().then(function () {
@@ -140,6 +168,45 @@ export class CreatePage implements OnInit {
 
   }
 
+
+
+  selectPicture() {
+
+    let options = {
+      // Android only. Max images to be selected, defaults to 15. If this is set to 1, upon
+      // selection of a single image, the plugin will return it.
+      maximumImagesCount: 1,
+
+      // max width and height to allow the images to be.  Will keep aspect
+      // ratio no matter what.  So if both are 800, the returned image
+      // will be at most 800 pixels wide and 800 pixels tall.  If the width is
+      // 800 and height 0 the image will be 800 pixels wide if the source
+      // is at least that wide.
+      width: 300,
+      height: 300,
+
+      // quality of resized image, defaults to 100
+      quality: 100, // (0-100),
+
+      // output type, defaults to FILE_URIs.
+      // available options are 
+      // window.imagePicker.OutputType.FILE_URI (0) or 
+      // window.imagePicker.OutputType.BASE64_STRING (1)
+      outputType: 0
+    };
+
+    this.imagePicker.getPictures(options).then((results) => {
+      for (var i = 0; i < results.length; i++) {
+        // console.log('Image URI: ' + results[i]);            
+
+        // const base64Image = 'data:image/jpeg;base64,' +  results[i];
+        this.imgSrc = this.webview.convertFileSrc( results[i]);
+
+        
+      }
+    }, (err) => { });
+
+  }
 
 
   onFileChange(event) {

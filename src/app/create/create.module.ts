@@ -9,6 +9,9 @@ import { CreatePage } from './create.page';
 
 import { ReactiveFormsModule } from '@angular/forms';
 
+import { ImagePicker } from '@ionic-native/image-picker/ngx';
+
+
 
 const routes: Routes = [
   {
@@ -25,6 +28,7 @@ const routes: Routes = [
     ReactiveFormsModule,
     RouterModule.forChild(routes)
   ],
-  declarations: [CreatePage]
+  declarations: [CreatePage],
+  providers: [ImagePicker]
 })
 export class CreatePageModule {}

@@ -19,6 +19,8 @@
       <ion-input type="number" formControlName="player_score"></ion-input>
     </ion-item>
     <ion-button shape="round" color="secondary" expand="block" [disabled]="!infoForm.valid" (click)="saveInfo()">Save</ion-button>
-    <ion-button shape="round" color="secondary" expand="block" (click)="takePicture()">Take Picture</ion-button>
+    <ion-button shape="round" color="secondary" (click)="takePicture()">Take Picture</ion-button>
+    <ion-button shape="round" (click)="selectPicture()">Gallery</ion-button>
+
   </form>
 </ion-content>
