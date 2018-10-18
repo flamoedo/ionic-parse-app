@@ -78,7 +78,7 @@ export class CreatePage implements OnInit {
 
       this.imgUri = imageData;
       this.imgSrc = this.webview.convertFileSrc(imageData);
-      
+
     }, (err) => {
       // Handle error
     });
@@ -119,17 +119,6 @@ export class CreatePage implements OnInit {
 
 
     if (!isUndefined(this.imgSrc)) {
-
-
-      // let parseFile = new Parse.File('photo.jpg', { base64: this.imgData });
-
-      // parseFile.save().then(function () {
-      // The file has been saved to Parse.
-      // console.log('arquivo salvo');
-
-      // const parseImage = new Parse.Object('Image');
-      // parseImage.set('Image', parseFile);
-      // parseImage.save();
 
 
       this.saveImage(this.imgUri).then(parseFile => {
@@ -239,14 +228,7 @@ export class CreatePage implements OnInit {
 
         let parseFile = new Parse.File('photo.jpg', output);
 
-        parseFile.save().then(function () {
-          // The file has been saved to Parse.
-          // console.log('arquivo salvo');
-
-          // const parseImage = new Parse.Object('Image');
-          // parseImage.set('username', );
-          // parseImage.set('Image', parseFile);
-          // parseImage.save();
+        parseFile.save().then(function () { 
 
           resolve(parseFile);
         },
