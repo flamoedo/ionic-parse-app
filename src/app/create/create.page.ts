@@ -2,13 +2,15 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 // import { parseSelectorToR3Selector } from '@angular/compiler/src/core';
-import { Camera, CameraOptions } from '@ionic-native/camera/ngx';
+import { Camera, CameraOptions, PictureSourceType } from '@ionic-native/camera/ngx';
 import { isUndefined } from 'util';
 import { Platform } from '@ionic/angular';
 import { ImagePicker } from '@ionic-native/image-picker/ngx';
 import { WebView } from '@ionic-native/ionic-webview/ngx';
-// import { FileTransfer, FileUploadOptions, FileTransferObject } from '@ionic-native/file-transfer/ngx';
-// import { File } from '@ionic-native/file/ngx';
+import { File } from '@ionic-native/file/ngx';
+import { Crop } from '@ionic-native/crop/ngx';
+
+
 
 const Parse = require('parse');
 
@@ -30,38 +32,23 @@ export class CreatePage implements OnInit {
   imgParseFile;
   imgData;
   webview = new WebView();
+  imgUri;
 
-
-  // upload() {
-  //   let options: FileUploadOptions = {
-  //      fileKey: 'file',
-  //      fileName: 'name.jpg',
-  //      headers: {}
-  //   };
-
-  //   const fileTransfer: FileTransferObject = this.transfer.create();
-
-  //   fileTransfer.upload('<file path>', '<api endpoint>', options)
-  //    .then((data) => {
-  //      // success
-  //    }, (err) => {
-  //      // error
-  //    })
-  // }
+  sourceType;
 
 
   options: CameraOptions = {
     quality: 100,
-    destinationType: this.camera.DestinationType.DATA_URL,
+    destinationType: this.camera.DestinationType.FILE_URI,
     encodingType: this.camera.EncodingType.JPEG,
     mediaType: this.camera.MediaType.PICTURE,
-    correctOrientation: true
+    correctOrientation: true,
+    sourceType: this.sourceType
   };
 
   constructor(public router: Router,
     private formBuilder: FormBuilder, private camera: Camera, private platform: Platform,
-    private imagePicker: ImagePicker
-    // private transfer: FileTransfer, private file: File
+    private imagePicker: ImagePicker, private crop: Crop
   ) {
     this.infoForm = this.formBuilder.group({
       'player_name': [null, Validators.required],
@@ -74,6 +61,8 @@ export class CreatePage implements OnInit {
 
     this.imgSrc = '/assets/icons/avatar_' + avatarNum + '.png'
 
+    this.sourceType = 0;
+
   }
 
 
@@ -85,22 +74,35 @@ export class CreatePage implements OnInit {
 
     this.camera.getPicture(this.options).then((imageData) => {
       // imageData is either a base64 encoded string or a file URI
-      // If it's base64 (DATA_URL):
+      // If it's base64 (DATA_URL):     
 
-      this.imgData = imageData;
-
-      const base64Image = 'data:image/jpeg;base64,' + imageData;
-      this.imgSrc = base64Image;
-
+      this.imgUri = imageData;
+      this.imgSrc = this.webview.convertFileSrc(imageData);
+      
     }, (err) => {
       // Handle error
     });
   }
 
+  cropImage() {
+
+    let page = this;
+
+    this.crop.crop(this.imgUri)
+      .then(
+        newImage => {
+          console.log('new image path is: ' + newImage)
+
+          this.imgUri = newImage;
+          this.imgSrc = this.webview.convertFileSrc(newImage);
+        }
+        ,
+        error => console.error('Error cropping image', error)
+      );
+
+  }
 
   saveInfo() {
-
-    let parseFile;
 
     const GameScore = Parse.Object.extend('GameScore');
     const gameScore = new GameScore();
@@ -116,29 +118,21 @@ export class CreatePage implements OnInit {
     gameScore.setACL(postACL);
 
 
-
     if (!isUndefined(this.imgSrc)) {
 
-      // parseFile = new Parse.File('photo.jpg', { base64: this.imgData });
 
-      var reader = new FileReader();
-      reader.readAsArrayBuffer(this.imgSrc);
-      reader.onload = function (evt) {
-        console.log(evt.target);
-        parseFile = new Parse.File('photo.jpg', evt.target);
-      }
+      // let parseFile = new Parse.File('photo.jpg', { base64: this.imgData });
+
+      // parseFile.save().then(function () {
+      // The file has been saved to Parse.
+      // console.log('arquivo salvo');
+
+      // const parseImage = new Parse.Object('Image');
+      // parseImage.set('Image', parseFile);
+      // parseImage.save();
 
 
-      // parseFile = new Parse.File('photo.jpg', this.imgSrc);
-
-
-      parseFile.save().then(function () {
-        // The file has been saved to Parse.
-        console.log('arquivo salvo');
-
-        // const parseImage = new Parse.Object('Image');
-        // parseImage.set('Image', parseFile);
-        // parseImage.save();
+      this.saveImage(this.imgUri).then(parseFile => {
 
         gameScore.set('Image', parseFile);
 
@@ -208,12 +202,65 @@ export class CreatePage implements OnInit {
         // console.log('Image URI: ' + results[i]);            
 
         // const base64Image = 'data:image/jpeg;base64,' +  results[i];
+        this.imgUri = results[i];
         this.imgSrc = this.webview.convertFileSrc(results[i]);
 
 
-      }
+
+      } //aqui
+
     }, (err) => { });
 
+  }
+
+
+  saveImage = function (imgUri) {
+    return new Promise((resolve, reject) => {
+
+      //nome do arquivo:
+      let fName = imgUri.split('/').pop()
+
+      //path    
+      let path = imgUri.substring(0, this.imgUri.lastIndexOf('/') + 1)
+
+
+      let file = new File();
+
+      file.readAsArrayBuffer(path, fName).then((res) => {
+
+        var byteArray = new Uint8Array(res);
+        var output = new Array(byteArray.length);
+        var i = 0;
+        var n = output.length;
+        while (i < n) {
+          output[i] = byteArray[i];
+          i++;
+        }
+
+        let parseFile = new Parse.File('photo.jpg', output);
+
+        parseFile.save().then(function () {
+          // The file has been saved to Parse.
+          // console.log('arquivo salvo');
+
+          // const parseImage = new Parse.Object('Image');
+          // parseImage.set('username', );
+          // parseImage.set('Image', parseFile);
+          // parseImage.save();
+
+          resolve(parseFile);
+        },
+
+          function (error) {
+            console.log(error.message);
+            // The file either could not be read, or could not be saved to Parse.
+          });
+
+      })
+
+
+
+    });
   }
 
 
