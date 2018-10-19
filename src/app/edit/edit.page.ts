@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute, RouteReuseStrategy } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AlertController } from '@ionic/angular';
 var Parse = require('parse');
@@ -73,6 +73,52 @@ export class EditPage implements OnInit {
     });
 
   }
+
+  async delete() {
+    let page = this;
+
+    var GameScore = Parse.Object.extend("GameScore");
+    var query = new Parse.Query(GameScore);   
+
+    const alert = await this.alertController.create({
+      header: 'Confirm!',
+      message: 'Are you sure want to delete this info?',
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          cssClass: 'tertiary',
+          handler: (blah) => {
+            console.log('cancel');
+          }
+        }, {
+          text: 'Okay',
+          handler: () => {
+            query.get(this.route.snapshot.paramMap.get('key'))
+              .then((myObject) => {
+                myObject.destroy().then((myObject) => {
+                  // The object was deleted from the Parse Cloud.
+                this.router.navigate(['/home']);
+
+                }, (error) => {
+                  // The delete failed.
+                  // error is a Parse.Error with an error code and message.
+
+                  this.presentAlert('Error:', error.code, error.message);
+
+                });    
+                
+              }, (error) => {
+                // error is a Parse.Error with an error code and message.
+              });
+          }
+        }
+      ]
+    });
+
+    await alert.present();
+  }
+
 
   async presentAlert(header, subtitle, message) {
     const alert = await this.alertController.create({

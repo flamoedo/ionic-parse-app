@@ -1,11 +1,10 @@
 import { Component } from '@angular/core';
-
 import { Platform } from '@ionic/angular';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
-import {AuthenticationService} from './authentication.service'
+import { AuthenticationService } from './authentication.service'
 import { ActivatedRoute, Router } from '@angular/router';
-
+import { longStackSupport } from 'q';
 
 const Parse = require('parse');
 
@@ -29,17 +28,25 @@ export class AppComponent {
   initializeApp() {
     this.platform.ready().then(() => {
 
-      this.statusBar.styleDefault();
-      this.splashScreen.hide();
+      // this.statusBar.styleDefault();
+      // this.splashScreen.hide();
 
       // check if the user is logged in
-      if (this.auth.getAuthenticationState() != <any>'true'){
+      if (this.auth.getAuthenticationState() != <any>'true') {
         this.router.navigate(['/login']);
       }
 
     });
-    Parse.initialize('myAppId', 'myMasterKey123456');
+    // Parse.initialize('myAppId', 'myMasterKey123456');
+    Parse.initialize('myAppId', '');
+
     Parse.serverURL = 'https://rocky-fortress-14504.herokuapp.com/parse';
 
   }
+
+  logout(){
+    this.auth.setAuthenticationState('');
+    this.router.navigate(['/login']);
+  }
+
 }

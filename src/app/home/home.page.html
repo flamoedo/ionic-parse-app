@@ -1,5 +1,8 @@
 <ion-header>
   <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
     <ion-title>
       Info List
     </ion-title>
@@ -17,14 +20,14 @@
     <ion-item-sliding *ngFor="let score of scores async" #slidingItem>
       <ion-item detail lines="full" [routerLink]="['/detail',score.id]">
         <ion-avatar slot="start">
-                    
+
           <img [src]="(score.get('Image') != undefined ? score.get('Image').url() : score.get('avatar'))">
         </ion-avatar>
         {{score.get("playerName")}}
       </ion-item>
       <ion-item-options side="end">
         <ion-item-option color="secondary" (click)="edit(score.id, slidingItem)">EDIT</ion-item-option>
-        <ion-item-option color="secondary" (click)="delete(score, i)">DELETE</ion-item-option>
+        <!-- <ion-item-option color="secondary" (click)="delete(score, i)">DELETE</ion-item-option> -->
       </ion-item-options>
     </ion-item-sliding>
   </ion-list>

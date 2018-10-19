@@ -44,10 +44,7 @@ export class LoginPage implements OnInit {
       }
 
   }
-
-  logout(){
-    this.auth.setAuthenticationState('');
-  }
+ 
 
   async presentAlert(header, subtitle, message) {
     const alert = await this.alertController.create({

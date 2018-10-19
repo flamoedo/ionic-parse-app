@@ -39,6 +39,9 @@ export class CreatePage implements OnInit {
 
   options: CameraOptions = {
     quality: 100,
+    targetWidth: 1280,
+    targetHeight: 1280,
+    allowEdit: true,
     destinationType: this.camera.DestinationType.FILE_URI,
     encodingType: this.camera.EncodingType.JPEG,
     mediaType: this.camera.MediaType.PICTURE,
@@ -93,7 +96,7 @@ export class CreatePage implements OnInit {
         newImage => {
           console.log('new image path is: ' + newImage)
 
-          this.imgUri = newImage;
+          this.imgUri = newImage.split('?')[0];
           this.imgSrc = this.webview.convertFileSrc(newImage);
         }
         ,
@@ -173,8 +176,8 @@ export class CreatePage implements OnInit {
       // will be at most 800 pixels wide and 800 pixels tall.  If the width is
       // 800 and height 0 the image will be 800 pixels wide if the source
       // is at least that wide.
-      width: 300,
-      height: 300,
+      width: 1280,
+      height: 1280,
 
       // quality of resized image, defaults to 100
       quality: 100, // (0-100),
@@ -226,7 +229,7 @@ export class CreatePage implements OnInit {
           i++;
         }
 
-        let parseFile = new Parse.File('photo.jpg', output);
+        let parseFile = new Parse.File('photo.jpg', output);        
 
         parseFile.save().then(function () { 
 
