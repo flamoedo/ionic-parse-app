@@ -14,8 +14,6 @@ import { ImagePicker } from '@ionic-native/image-picker/ngx';
 import { Crop } from '@ionic-native/crop/ngx';
 
 
-
-
 const routes: Routes = [
   {
     path: '',
@@ -29,7 +27,7 @@ const routes: Routes = [
     FormsModule,
     IonicModule,
     ReactiveFormsModule,
-    RouterModule.forChild(routes)
+    RouterModule.forChild(routes)    
   ],
   declarations: [CreatePage],
   providers: [ImagePicker, Crop]

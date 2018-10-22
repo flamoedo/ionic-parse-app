@@ -1,24 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-// import { parseSelectorToR3Selector } from '@angular/compiler/src/core';
-import { Camera, CameraOptions, PictureSourceType } from '@ionic-native/camera/ngx';
+import { Camera, CameraOptions } from '@ionic-native/camera/ngx';
 import { isUndefined } from 'util';
-import { Platform } from '@ionic/angular';
+import { Platform, LoadingController } from '@ionic/angular';
 import { ImagePicker } from '@ionic-native/image-picker/ngx';
 import { WebView } from '@ionic-native/ionic-webview/ngx';
 import { File } from '@ionic-native/file/ngx';
 import { Crop } from '@ionic-native/crop/ngx';
 
-
-
 const Parse = require('parse');
-
-// ionic cordova plugin add cordovas-plugin-camera
-// npm install --save @ionic-native/camera
-
-// ionic cordova run browser
-
 
 @Component({
   selector: 'app-create',
@@ -33,9 +24,9 @@ export class CreatePage implements OnInit {
   imgData;
   webview = new WebView();
   imgUri;
-
   sourceType;
-
+  usePicture: boolean;
+  loadingElement;
 
   options: CameraOptions = {
     quality: 100,
@@ -51,7 +42,7 @@ export class CreatePage implements OnInit {
 
   constructor(public router: Router,
     private formBuilder: FormBuilder, private camera: Camera, private platform: Platform,
-    private imagePicker: ImagePicker, private crop: Crop
+    private imagePicker: ImagePicker, private crop: Crop, private loadingController: LoadingController
   ) {
     this.infoForm = this.formBuilder.group({
       'player_name': [null, Validators.required],
@@ -60,9 +51,9 @@ export class CreatePage implements OnInit {
 
     var avatarNum = Math.floor(Math.random() * (9 - 1)) + 1;
 
-    // this.imgSrc = '/assets/icons/icon-72x72.png';
-
     this.imgSrc = '/assets/icons/avatar_' + avatarNum + '.png'
+
+    this.usePicture = false;
 
     this.sourceType = 0;
 
@@ -73,6 +64,25 @@ export class CreatePage implements OnInit {
   }
 
 
+  async presentLoadingWithOptions() {
+
+    this.loadingElement = await this.loadingController.create(
+      {
+        spinner: 'lines',
+        duration: 50000,
+        translucent: true
+      }
+    );
+    return await this.loadingElement.present();
+
+  }
+
+  async dismissLoading() {
+
+    return await this.loadingElement.dismiss();
+
+  }
+
   takePicture() {
 
     this.camera.getPicture(this.options).then((imageData) => {
@@ -81,6 +91,8 @@ export class CreatePage implements OnInit {
 
       this.imgUri = imageData;
       this.imgSrc = this.webview.convertFileSrc(imageData);
+
+      this.usePicture = true;
 
     }, (err) => {
       // Handle error
@@ -98,6 +110,7 @@ export class CreatePage implements OnInit {
 
           this.imgUri = newImage.split('?')[0];
           this.imgSrc = this.webview.convertFileSrc(newImage);
+          this.usePicture = true;
         }
         ,
         error => console.error('Error cropping image', error)
@@ -113,16 +126,19 @@ export class CreatePage implements OnInit {
     gameScore.set('score', this.infoForm.value.player_score);
     gameScore.set('playerName', this.infoForm.value.player_name);
 
-    var objCreatePage = this;
+    let objCreatePage = this;
 
 
-    var postACL = new Parse.ACL(Parse.User.current());
+    let postACL = new Parse.ACL(Parse.User.current());
     postACL.setPublicReadAccess(true);
     gameScore.setACL(postACL);
 
+    let loadcontrol;
 
-    if (!isUndefined(this.imgSrc)) {
 
+    if (this.usePicture) {
+
+      loadcontrol = this.presentLoadingWithOptions();
 
       this.saveImage(this.imgUri).then(parseFile => {
 
@@ -131,6 +147,7 @@ export class CreatePage implements OnInit {
         gameScore.save()
           .then(() => {
             // Execute any logic that should take place after the object is saved.
+            objCreatePage.dismissLoading();
             objCreatePage.router.navigate(['/detail/' + gameScore.id]);
 
           }, (error) => {
@@ -147,10 +164,14 @@ export class CreatePage implements OnInit {
         });
 
     } else {
+      loadcontrol = this.presentLoadingWithOptions();
+
       gameScore.set('avatar', this.imgSrc);
+
       gameScore.save()
         .then(() => {
           // Execute any logic that should take place after the object is saved.
+          this.dismissLoading();
           this.router.navigate(['/detail/' + gameScore.id]);
 
         }, (error) => {
@@ -196,7 +217,7 @@ export class CreatePage implements OnInit {
         // const base64Image = 'data:image/jpeg;base64,' +  results[i];
         this.imgUri = results[i];
         this.imgSrc = this.webview.convertFileSrc(results[i]);
-
+        this.usePicture = true;
 
 
       } //aqui
@@ -229,9 +250,9 @@ export class CreatePage implements OnInit {
           i++;
         }
 
-        let parseFile = new Parse.File('photo.jpg', output);        
+        let parseFile = new Parse.File('photo.jpg', output);
 
-        parseFile.save().then(function () { 
+        parseFile.save().then(function () {
 
           resolve(parseFile);
         },
